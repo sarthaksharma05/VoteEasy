@@ -9,18 +9,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#FAF9F7",
-        surface: "#FFFFFF",
-        border: "#EAE6E0",
-        input: "#F7F5F2",
-        primary: "#D4622A",
-        "primary-hover": "#B85520",
-        foreground: "#1A1714",
-        muted: "#9A9088",
+        primary: {
+          DEFAULT: '#E8510A',
+          dark: '#C44208',
+          light: '#F5DDD3',
+        },
+        surface: {
+          dark: '#1A1A1A',
+          light: '#F5F0EB',
+          card: '#FAFAF9',
+          white: '#FFFFFF',
+        },
+        background: "var(--color-bg-light)",
+        border: "var(--color-border)",
+        input: "var(--color-border-input)",
+        foreground: "var(--color-text-primary)",
+        muted: "var(--color-text-secondary)",
+      },
+      fontFamily: {
+        display: ['Sora', 'sans-serif'],
+        body: ['DM Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      borderRadius: {
+        '4xl': '2rem',
       },
       transitionTimingFunction: {
         smooth: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
+      boxShadow: {
+        'card': 'var(--shadow-card)',
+        'elevated': 'var(--shadow-elevated)',
+      }
     },
   },
   plugins: [],

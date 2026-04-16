@@ -3,7 +3,42 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  /* Brand Colors */
+  --color-primary: #E8510A;
+  --color-primary-dark: #C44208;
+  --color-primary-light: #F5DDD3;
+
+  /* Backgrounds */
+  --color-bg-dark: #1A1A1A;
+  --color-bg-light: #F5F0EB;
+  --color-bg-white: #FFFFFF;
+  --color-bg-card: #FAFAF9;
+
+  /* Text */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B6B6B;
+  --color-text-light: #FFFFFF;
+  --color-text-orange: #E8510A;
+
+  /* Borders & Dividers */
+  --color-border: #E5E0DA;
+  --color-border-input: #D8D2CB;
+
+  /* Status Colors */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Shadows */
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.10);
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
 * {
@@ -17,9 +52,8 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #faf9f7;
-  color: #1a1714;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
 }
 
 a {
@@ -28,17 +62,18 @@ a {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
 ::selection {
-  background: rgba(212, 98, 42, 0.16);
+  background: rgba(232, 81, 10, 0.16);
 }
 
 @layer base {
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply antialiased font-body;
   }
 }
 
