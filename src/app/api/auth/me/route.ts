@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
 import { isTokenError, verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveAutoVerification } from "@/lib/registration-status";
+import { getUserWithSettings } from "@/lib/user-settings";
 
 function getBearerToken(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -25,27 +27,48 @@ export async function GET(request: Request) {
     }
 
     const payload = verifyToken(token);
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-      select: {
-        createdAt: true,
-        email: true,
-        id: true,
-        name: true,
-      },
-    });
+    let user = await getUserWithSettings(payload.userId);
 
     if (!user) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
+    const autoVerifiedUser = await resolveAutoVerification(user.id, user.registrationStatus, user.registrationData);
+    if (autoVerifiedUser) {
+      user = {
+        ...user,
+        registrationStatus: autoVerifiedUser.registrationStatus,
+      };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayChatsCount = await prisma.chat.count({
+      where: {
+        userId: payload.userId,
+        createdAt: { gte: today }
+      }
+    });
+
     return NextResponse.json(
       {
-        user,
+        user: {
+          createdAt: user.createdAt,
+          email: user.email,
+          id: user.id,
+          mobile: user.mobile,
+          name: user.name,
+          preferredLanguage: user.preferredLanguage,
+          profilePhoto: user.profilePhoto,
+          registrationStatus: user.registrationStatus,
+          theme: user.theme,
+          notifications: user.notifications,
+        },
         stats: [
-          { label: "Registration Status", value: "Active" },
-          { label: "Saved Documents", value: "3" },
-          { label: "Deadline Alerts", value: "2" },
+          { label: "Registration Status", value: user.registrationStatus === 'VERIFIED' ? 'Verified' : user.registrationStatus === 'PENDING' ? 'Pending' : 'Incomplete' },
+          { label: "Saved Documents", value: "3" }, // Mocked
+          { label: "AI Queries Today", value: `${todayChatsCount} Chats` },
         ],
       },
       { status: 200 },

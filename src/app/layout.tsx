@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ThemeSync } from "@/components/ThemeSync";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,7 +21,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body text-surface-dark bg-surface-light antialiased">{children}</body>
+      <body className="font-body text-surface-dark bg-surface-light antialiased">
+        <ThemeSync />
+        {children}
+      </body>
     </html>
   );
 }

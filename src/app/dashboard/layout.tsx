@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex h-screen overflow-hidden bg-surface-light">
-      <aside className="w-[260px] min-w-[260px] h-screen overflow-y-auto flex-shrink-0 bg-surface-dark flex flex-col z-20">
+      <aside className="w-[220px] min-w-[220px] h-screen overflow-y-auto flex-shrink-0 bg-[#1a1a1a] flex flex-col z-20">
         <Sidebar />
       </aside>
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">

@@ -4,7 +4,7 @@
 
 :root {
   /* Brand Colors */
-  --color-primary: #E8510A;
+  --color-primary: #f05a1a;
   --color-primary-dark: #C44208;
   --color-primary-light: #F5DDD3;
 
@@ -18,7 +18,7 @@
   --color-text-primary: #1A1A1A;
   --color-text-secondary: #6B6B6B;
   --color-text-light: #FFFFFF;
-  --color-text-orange: #E8510A;
+  --color-text-orange: #f05a1a;
 
   /* Borders & Dividers */
   --color-border: #E5E0DA;
@@ -41,6 +41,18 @@
   --radius-xl: 24px;
 }
 
+:root[data-theme="dark"] {
+  --color-bg-light: #101214;
+  --color-bg-white: #171a1d;
+  --color-bg-card: #1d2126;
+  --color-text-primary: #f5f7fa;
+  --color-text-secondary: #a4acb6;
+  --color-border: #303743;
+  --color-border-input: #434c5b;
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -54,6 +66,7 @@ body {
   min-height: 100vh;
   background: var(--color-bg-light);
   color: var(--color-text-primary);
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 a {
@@ -68,13 +81,65 @@ select {
 }
 
 ::selection {
-  background: rgba(232, 81, 10, 0.16);
+  background: rgba(240, 90, 26, 0.16);
 }
 
 @layer base {
   body {
     @apply antialiased font-body;
   }
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .bg-white,
+body[data-theme="dark"] .bg-white {
+  background-color: var(--color-bg-white) !important;
+}
+
+html[data-theme="dark"] .bg-\[\#fcfcfc\],
+body[data-theme="dark"] .bg-\[\#fcfcfc\] {
+  background-color: #111418 !important;
+}
+
+html[data-theme="dark"] .bg-\[\#fafafa\],
+body[data-theme="dark"] .bg-\[\#fafafa\] {
+  background-color: #1b2026 !important;
+}
+
+html[data-theme="dark"] .bg-\[\#f5f0eb\],
+body[data-theme="dark"] .bg-\[\#f5f0eb\] {
+  background-color: #242a33 !important;
+}
+
+html[data-theme="dark"] .border-\[\#e5e5e5\],
+body[data-theme="dark"] .border-\[\#e5e5e5\] {
+  border-color: var(--color-border) !important;
+}
+
+html[data-theme="dark"] .text-\[\#1a1a1a\],
+body[data-theme="dark"] .text-\[\#1a1a1a\] {
+  color: var(--color-text-primary) !important;
+}
+
+html[data-theme="dark"] .text-\[\#666\],
+body[data-theme="dark"] .text-\[\#666\],
+html[data-theme="dark"] .text-\[\#999999\],
+body[data-theme="dark"] .text-\[\#999999\] {
+  color: var(--color-text-secondary) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea {
+  background-color: #111418;
+  color: var(--color-text-primary);
+  border-color: var(--color-border-input);
 }
 
 @keyframes auth-fade {
