@@ -1,8 +1,31 @@
+"use client";
+
 import { CheckCheck, Globe, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export function Navbar() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout request failed");
+      }
+
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <nav className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-[#2A2622] bg-[#FAF9F7] px-6">
       <div className="flex items-center gap-3">
@@ -25,7 +48,11 @@ export function Navbar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E5E0D8] text-sm font-semibold text-[#1A1714]">
             JS
           </div>
-          <button className="text-[#8A8078] hover:text-[#D4622A] transition-colors" aria-label="Logout">
+          <button
+            onClick={handleLogout}
+            className="text-[#8A8078] hover:text-[#D4622A] transition-colors"
+            aria-label="Logout"
+          >
             <LogOut className="h-5 w-5" />
           </button>
         </div>

@@ -11,7 +11,7 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 
 const navItems = [
@@ -25,6 +25,25 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout request failed");
+      }
+
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <aside className="hidden h-screen w-[220px] flex-col bg-[#1a1a1a] md:flex">
@@ -71,7 +90,10 @@ export function Sidebar() {
           <Settings className="h-5 w-5 flex-shrink-0" />
           Settings
         </Link>
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#999999] transition-colors hover:bg-[#222] hover:text-red-400 border-l-[2px] border-transparent mt-1">
+        <button 
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#999999] transition-colors hover:bg-[#222] hover:text-red-400 border-l-[2px] border-transparent mt-1"
+        >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           Logout
         </button>
