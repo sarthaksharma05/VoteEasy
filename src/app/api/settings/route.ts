@@ -38,7 +38,7 @@ async function getCurrentUser() {
     return null;
   }
 
-  const payload = verifyToken(token);
+  const payload = await verifyToken(token);
   return getUserWithSettings(payload.userId);
 }
 

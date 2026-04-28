@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
     if (!token) return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
 
     const currentUser = await getUserWithSettings(payload.userId);
 

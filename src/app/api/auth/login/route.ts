@@ -1,84 +1,60 @@
-import bcrypt from "bcryptjs";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { SignJWT } from 'jose'
 
-import { generateToken } from "@/lib/auth";
-import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
-import { isValidEmail } from "@/lib/auth-helpers";
-import { prisma } from "@/lib/prisma";
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = (await request.json()) as {
-      email?: string;
-      password?: string;
-    };
-
-    const email = body.email?.trim().toLowerCase();
-    const password = body.password?.trim();
+    const { email, password } = await req.json()
 
     if (!email || !password) {
       return NextResponse.json(
-        { message: "Email and password are required." },
-        { status: 400 },
-      );
+        { error: 'Email and password are required' },
+        { status: 400 }
+      )
     }
 
-    if (!isValidEmail(email)) {
-      return NextResponse.json(
-        { message: "Please enter a valid email address." },
-        { status: 400 },
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
       return NextResponse.json(
-        { message: "Invalid email or password." },
-        { status: 401 },
-      );
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
     }
 
-    const passwordMatches = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatches) {
+    const valid = await bcrypt.compare(password, user.password)
+    if (!valid) {
       return NextResponse.json(
-        { message: "Invalid email or password." },
-        { status: 401 },
-      );
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
     }
 
-    const token = generateToken(user.id);
-    const response = NextResponse.json(
-      {
-        message: "Login successful.",
-        token,
-        user: {
-          email: user.email,
-          id: user.id,
-          name: user.name,
-        },
-      },
-      { status: 200 },
-    );
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const token = await new SignJWT({ userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(secret)
 
-    response.cookies.set({
+    const response = NextResponse.json({
+      success: true,
+      user: { id: user.id, name: user.name, email: user.email }
+    })
+
+    response.cookies.set('voteeasy_token', token, {
       httpOnly: true,
-      maxAge: 60 * 60 * 24,
-      name: AUTH_COOKIE_NAME,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      value: token,
-    });
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    })
 
-    return response;
-  } catch {
+    return response
+  } catch (error) {
+    console.error('Login error:', error)
     return NextResponse.json(
-      { message: "Something went wrong while signing you in." },
-      { status: 500 },
-    );
+      { error: 'Login failed' },
+      { status: 500 }
+    )
   }
 }

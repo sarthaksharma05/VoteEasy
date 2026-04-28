@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     const body = await request.json();
     const registrationPayload = {
       ...body,

@@ -10,7 +10,7 @@ export async function GET() {
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
     if (!token) return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
 
     const chats = await prisma.chat.findMany({
       where: { userId: payload.userId },
@@ -35,7 +35,7 @@ export async function POST() {
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
     if (!token) return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
 
     const newChat = await prisma.chat.create({
       data: {

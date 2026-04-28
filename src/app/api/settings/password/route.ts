@@ -15,7 +15,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     const body = await request.json();
     const currentPassword = typeof body.currentPassword === "string" ? body.currentPassword.trim() : "";
     const newPassword = typeof body.newPassword === "string" ? body.newPassword.trim() : "";

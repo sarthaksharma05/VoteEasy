@@ -40,7 +40,7 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     const user = await getUserWithSettings(payload.userId);
 
     if (!user) {

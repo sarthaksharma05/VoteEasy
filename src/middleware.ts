@@ -1,18 +1,43 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
-import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
+const PROTECTED_ROUTES = ['/dashboard', '/chat', '/verify', '/register', '/status']
+const AUTH_ROUTES = ['/login', '/signup']
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('voteeasy_token')?.value
+  const pathname = request.nextUrl.pathname
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  const isProtected = PROTECTED_ROUTES.some(r => pathname.startsWith(r))
+  const isAuthRoute = AUTH_ROUTES.some(r => pathname.startsWith(r))
+
+  if (isProtected) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+      await jwtVerify(token, secret)
+      return NextResponse.next()
+    } catch {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
   }
 
-  return NextResponse.next();
+  if (isAuthRoute && token) {
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+      await jwtVerify(token, secret)
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } catch {
+      return NextResponse.next()
+    }
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
-};
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|public).*)'],
+}

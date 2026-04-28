@@ -1,76 +1,57 @@
-import bcrypt from "bcryptjs";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { SignJWT } from 'jose'
 
-import { isPrismaDuplicateError, isValidEmail } from "@/lib/auth-helpers";
-import { prisma } from "@/lib/prisma";
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = (await request.json()) as {
-      email?: string;
-      name?: string;
-      password?: string;
-    };
-
-    const name = body.name?.trim();
-    const email = body.email?.trim().toLowerCase();
-    const password = body.password?.trim();
+    const { name, email, password, mobile, preferredLanguage } = await req.json()
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { message: "Name, email, and password are required." },
-        { status: 400 },
-      );
+        { error: 'Name, email and password are required' },
+        { status: 400 }
+      )
     }
 
-    if (!isValidEmail(email)) {
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) {
       return NextResponse.json(
-        { message: "Please enter a valid email address." },
-        { status: 400 },
-      );
+        { error: 'Email already registered' },
+        { status: 409 }
+      )
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { message: "Password must be at least 8 characters long." },
-        { status: 400 },
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    const hashed = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-      select: {
-        createdAt: true,
-        email: true,
-        id: true,
-        name: true,
-      },
-    });
+      data: { name, email, password: hashed, mobile, preferredLanguage }
+    })
 
-    return NextResponse.json(
-      {
-        message: "Account created successfully.",
-        user,
-      },
-      { status: 201 },
-    );
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const token = await new SignJWT({ userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(secret)
+
+    const response = NextResponse.json(
+      { success: true, user: { id: user.id, name: user.name, email: user.email } },
+      { status: 201 }
+    )
+
+    response.cookies.set('voteeasy_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    })
+
+    return response
   } catch (error) {
-    if (isPrismaDuplicateError(error)) {
-      return NextResponse.json(
-        { message: "An account with this email already exists." },
-        { status: 409 },
-      );
-    }
-
+    console.error('Register error:', error)
     return NextResponse.json(
-      { message: "Something went wrong while creating your account." },
-      { status: 500 },
-    );
+      { error: 'Registration failed' },
+      { status: 500 }
+    )
   }
 }
