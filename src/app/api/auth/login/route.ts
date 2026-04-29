@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { SignJWT } from 'jose'
 
 export async function POST(req: Request) {
+  console.log('[login] handler reached')
+  console.log('[login] method:', req.method)
+  console.log('[login] JWT_SECRET set:', !!process.env.JWT_SECRET)
   try {
     const { email, password } = await req.json()
 
