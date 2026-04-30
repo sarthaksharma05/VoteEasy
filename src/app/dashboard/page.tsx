@@ -5,6 +5,7 @@ import {
   Bot,
   CalendarDays,
   FileCheck2,
+    MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,9 +36,10 @@ interface DashboardUser {
   name: string;
 }
 
-interface DashboardStat {
-  label: string;
-  value: string;
+  interface DashboardData {
+    user: DashboardUser;
+    registrationStatus: string;
+    chatCount: number;
 }
 
 function StatCard({ label, value, subtext, accentColor }: StatCardProps) {
@@ -98,26 +100,46 @@ function DeadlineItem({ state, type, date, days }: DeadlineItemProps) {
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = React.useState<DashboardStat[] | null>(null);
-  const [user, setUser] = React.useState<DashboardUser | null>(null);
+  const [data, setData] = React.useState<DashboardData | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then(res => res.json())
-      .then(data => {
-        if (data.user) setUser(data.user);
-        if (data.stats) setStats(data.stats);
+      .then(fetchedData => {
+        setData(fetchedData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching user data:', err);
+        setLoading(false);
       });
   }, []);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl space-y-6 p-6">
+        <div className="text-center text-[#666]">Loading your dashboard...</div>
+      </div>
+    );
+  }
+
+  const registrationStatusText = data?.registrationStatus || "UNREGISTERED";
+  const registrationStatusColor = registrationStatusText === "VERIFIED" ? "#22c55e" : "#f05a1a";
+  const registrationStatusLabel = registrationStatusText === "VERIFIED" 
+    ? "✓ Registered" 
+    : registrationStatusText === "PENDING"
+    ? "⏳ Pending"
+    : "○ Unregistered";
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          label={stats?.[0]?.label || "Registration Status"} 
-          value={stats?.[0]?.value || "Loading"} 
+          label="Registration Status"
+          value={registrationStatusLabel}
           subtext="• Voter ID Status"
-          accentColor="#22c55e"
+          accentColor={registrationStatusColor}
         />
         <StatCard 
           label="Days Until Deadline" 
@@ -126,15 +148,15 @@ export default function DashboardPage() {
           accentColor="#f05a1a"
         />
         <StatCard 
-          label="Documents Scanned" 
-          value={stats?.[1]?.value || "3 Docs"} 
-          subtext="• Aadhaar + more"
-          accentColor="#3b82f6"
+          label="AI Chats" 
+          value={String(data?.chatCount || 0)}
+          subtext="• Total conversations"
+          accentColor="#8b5cf6"
         />
         <StatCard 
-          label="AI Queries Today" 
-          value={stats?.[2]?.value || "Loading"} 
-          subtext="• All answered"
+          label="Documents Scanned" 
+          value="3 Docs" 
+          subtext="• Aadhaar + more"
           accentColor="#8b5cf6"
         />
       </section>
@@ -143,14 +165,14 @@ export default function DashboardPage() {
         <div className="bg-[#1a1a1a] rounded-[10px] p-6 lg:p-8"
              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
           <h2 className="text-[24px] font-bold text-white mb-2">
-            Welcome back, <span style={{ color: '#f05a1a' }}>{user?.name || 'Voter'}</span>
+            Welcome back, <span style={{ color: '#f05a1a' }}>{data?.user?.name || 'Voter'}</span>
           </h2>
           <p className="text-[15px] text-[#ccc] mb-6">
-            Your voter registration journey is 80% complete.
+            Your voter registration journey is {registrationStatusText === "VERIFIED" ? "100" : registrationStatusText === "PENDING" ? "60" : "0"}% complete.
           </p>
           <div className="flex flex-col gap-2">
             <div className="w-full bg-[#333] h-2 rounded-full overflow-hidden">
-              <div className="bg-[#f05a1a] h-full" style={{ width: '80%' }} />
+              <div className="bg-[#f05a1a] h-full" style={{ width: registrationStatusText === "VERIFIED" ? '100%' : registrationStatusText === "PENDING" ? '60%' : '0%' }} />
             </div>
           </div>
         </div>
