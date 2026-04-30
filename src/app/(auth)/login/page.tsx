@@ -75,15 +75,15 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         method: "POST",
+        credentials: "include",
       });
 
-      const data = (await response.json()) as { message?: string; token?: string };
-
-      if (!response.ok || !data.token) {
-        throw new Error(data.message ?? "Unable to sign in.");
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? "Unable to sign in.");
       }
 
-      window.localStorage.setItem("voteeasy_token", data.token);
+      // httpOnly cookie is set by backend — no need to touch it from JS
       router.push("/dashboard");
       router.refresh();
     } catch (error) {

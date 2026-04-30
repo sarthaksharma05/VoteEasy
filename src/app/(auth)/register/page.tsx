@@ -92,12 +92,13 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         method: "POST",
+        credentials: "include",
       });
 
-      const data = (await response.json()) as { message?: string };
+      const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(data.message ?? "Unable to create your account.");
+        throw new Error(data.error ?? "Unable to create your account.");
       }
 
       setSuccessMessage("Account created successfully. Redirecting to login...");

@@ -23,7 +23,7 @@ function PendingStatusPoller({ onVerified }: { onVerified: () => void }) {
   useEffect(() => {
     const poll = async () => {
       try {
-        const res = await fetch("/api/auth/me");
+        const res = await fetch("/api/auth/me", { credentials: "include" });
         const data = await res.json();
         if (data.user?.registrationStatus === "VERIFIED") {
           onVerified();
@@ -94,7 +94,7 @@ export default function RegisterWizardPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch("/api/auth/me", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (data.user?.registrationStatus) {
