@@ -37,10 +37,16 @@ export async function GET(req: Request) {
     }
 
       const chatCount = user.chats?.length || 0
-      const { chats, ...userWithoutChats } = user
 
       return NextResponse.json({
-        user: userWithoutChats,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        preferredLanguage: user.preferredLanguage,
+        registrationStatus: user.registrationStatus,
+      },
         registrationStatus: user.registrationStatus,
         chatCount: chatCount
       })

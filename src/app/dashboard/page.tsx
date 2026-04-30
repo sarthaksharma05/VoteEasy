@@ -5,7 +5,6 @@ import {
   Bot,
   CalendarDays,
   FileCheck2,
-    MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
