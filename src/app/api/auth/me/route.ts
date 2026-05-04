@@ -37,20 +37,25 @@ export async function GET(req: Request) {
     }
 
       const chatCount = user.chats?.length || 0
-    // Auto-verify if 30 seconds have passed since submission
-    if (user.registrationStatus === 'PENDING' && user.registrationData) {
-      const { resolveAutoVerification } = await import('@/lib/registration-status')
-      await resolveAutoVerification(user.id, user.registrationStatus, user.registrationData)
-      
-      // Fetch updated status
-      const updatedUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { registrationStatus: true }
-      })
-      if (updatedUser) {
-        user.registrationStatus = updatedUser.registrationStatus
+
+      // Fetch registrationData separately to satisfy TypeScript typings
+      const regDataRes = await prisma.user.findUnique({ where: { id: user.id }, select: { registrationData: true } });
+      const registrationData = regDataRes?.registrationData ?? null;
+
+      // Auto-verify if 30 seconds have passed since submission
+      if (user.registrationStatus === 'PENDING' && registrationData) {
+        const { resolveAutoVerification } = await import('@/lib/registration-status');
+        await resolveAutoVerification(user.id, user.registrationStatus, registrationData);
+
+        // Fetch updated status
+        const updatedUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { registrationStatus: true }
+        });
+        if (updatedUser) {
+          user.registrationStatus = updatedUser.registrationStatus;
+        }
       }
-    }
 
       return NextResponse.json({
       user: {
