@@ -9,7 +9,7 @@ const STEPS = ["Personal Details", "Address Details", "Documents", "Review & Sub
 const POLL_INTERVAL_MS = 30_000; // 30 seconds
 
 function PendingStatusPoller({ onVerified }: { onVerified: () => void }) {
-  const [secondsLeft, setSecondsLeft] = React.useState(10 * 60); // 10-minute countdown
+  const [secondsLeft, setSecondsLeft] = React.useState(30); // 30-second countdown
 
   // Countdown timer — ticks every second
   useEffect(() => {
@@ -47,10 +47,10 @@ function PendingStatusPoller({ onVerified }: { onVerified: () => void }) {
       <div>
         <h2 className="text-[28px] font-bold text-[#1a1a1a]">Application Under Review</h2>
         <p className="mt-3 text-[16px] text-[#666] max-w-md mx-auto">
-          Your application has been submitted and is being automatically processed. Verification is expected within 10 minutes.
+          Your application has been submitted and is being automatically processed. Verification is expected within 30 seconds.
         </p>
         <p className="mt-2 text-[14px] text-[#999]">
-          Auto-checking again in about {Math.max(1, Math.ceil(secondsLeft / 60))} minute(s).
+          Auto-checking again in about {Math.max(1, secondsLeft)} second(s).
         </p>
       </div>
 

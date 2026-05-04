@@ -128,7 +128,7 @@ export default function DashboardPage() {
   const registrationStatusLabel = registrationStatusText === "VERIFIED" 
     ? "✓ Registered" 
     : registrationStatusText === "PENDING"
-    ? "⏳ Pending"
+    ? "Pending"
     : "○ Unregistered";
 
   return (

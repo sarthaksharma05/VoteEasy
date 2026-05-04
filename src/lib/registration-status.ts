@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-const AUTO_VERIFY_DELAY_MS = 10 * 60 * 1000;
+const AUTO_VERIFY_DELAY_MS = 30 * 1000;
 
 interface RegistrationDataWithMeta {
   __submittedAt?: string;
